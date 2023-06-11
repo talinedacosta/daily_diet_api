@@ -4,10 +4,10 @@ import { mealRoutes } from './routes/meal';
 
 export const app = fastify();
 
+//routes
 app.register(userRoutes, {
     prefix: 'user'
-})
-
+});
 app.register(mealRoutes, {
     prefix: 'meal'
-})
+});

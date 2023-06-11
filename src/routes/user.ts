@@ -1,11 +1,8 @@
 import { FastifyInstance } from 'fastify';
+import { userSignin, userSignup } from '../controllers/userController';
 
 export async function userRoutes(app: FastifyInstance) {
-    app.post('/signup', async (request, response) => {
-        console.log(request.body)
-    })
+    app.post('/signup', userSignup);
 
-    app.post('/signin', async (request, response) => {
-        console.log(request.body)
-    })
+    app.post('/signin', userSignin);
 }

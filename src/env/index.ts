@@ -13,7 +13,8 @@ const envSchema = z.object({
     NODE_ENV: z.enum(['test', 'development', 'production']),
     DATABASE_URL: z.string(),
     DATABASE_CLIENT: z.enum(['sqlite', 'pg']),
-    PORT: z.coerce.number().default(3000)
+    PORT: z.coerce.number().default(3000),
+    ACCESS_TOKEN_SECRET: z.string()
 });
 
 //it will validate the environment variables
