@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
-export async function mealRoutes(app: FastifyInstance) {
+export async function mealsRoutes(app: FastifyInstance) {
     //GET all
     app.get('/', async (request, response) => {
         console.log(request.params)

@@ -1,13 +1,13 @@
 import fastify from 'fastify';
-import { userRoutes } from './routes/user';
-import { mealRoutes } from './routes/meal';
+import { usersRoutes } from './routes/usersRoutes';
+import { mealsRoutes } from './routes/mealsRoutes';
 
 export const app = fastify();
 
 //routes
-app.register(userRoutes, {
-    prefix: 'user'
+app.register(usersRoutes, {
+    prefix: 'users'
 });
-app.register(mealRoutes, {
-    prefix: 'meal'
+app.register(mealsRoutes, {
+    prefix: 'meals'
 });
