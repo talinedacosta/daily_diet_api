@@ -1,33 +1,22 @@
 import { FastifyInstance } from 'fastify';
+import { createMeal, deleteMeal, getMeal, getMeals, summaryMeal, updateMeal } from '../controllers/mealsController';
 
 export async function mealsRoutes(app: FastifyInstance) {
     //GET all
-    app.get('/', async (request, response) => {
-        console.log(request.params)
-    })
+    app.get('/', getMeals);
 
     //GET one
-    app.get('/:id', async (request, response) => {
-        console.log(request.params)
-    })
+    app.get('/:id', getMeal);
 
     //POST one
-    app.post('/', async (request, response) => {
-        console.log(request.body)
-    })
+    app.post('/', createMeal);
 
     //UPDATE one
-    app.put('/:id', async (request, response) => {
-        console.log(request.body, request.params)
-    })
+    app.put('/:id', updateMeal);
 
     //DELETE one
-    app.delete('/:id', async (request, response) => {
-        console.log(request.params)
-    })
+    app.delete('/:id', deleteMeal);
 
     //GET a summary
-    app.delete('/summary', async (request, response) => {
-        console.log(request.params)
-    })
+    app.get('/summary', summaryMeal);
 }
