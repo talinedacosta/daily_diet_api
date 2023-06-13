@@ -9,6 +9,7 @@ export async function up(knex: Knex): Promise<void> {
         table.text('description');
         table.boolean('isDiet').notNullable();
         table.timestamp('eaten_at').notNullable();
+        table.timestamp('updated_at').notNullable();
         table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable();
     })
 }
