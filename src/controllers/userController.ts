@@ -4,20 +4,17 @@ import { randomUUID } from "node:crypto";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from "../env";
-
-interface User {
-    name?: string,
-    email: string,
-    password: string,
-}
+import { z } from 'zod';
 
 export const userSignup = async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const { name, email, password } = request.body as User;
+    const bodySchema = z.object({
+        name: z.string(),
+        email: z.string().email(),
+        password: z.string()
+    });
 
-    if (!name || !email || !password) {
-        return reply.status(400).send("All fields are required.")
-    }
+    const { name, email, password } = bodySchema.parse(request.body);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -51,18 +48,17 @@ export const userSignup = async (request: FastifyRequest, reply: FastifyReply) =
 
 export const userSignin = async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const { email, password } = request.body as User;
+    const bodySchema = z.object({
+        password: z.string(),
+        email: z.string().email(),
+    });
 
-    if (!email || !password) {
-        return reply.status(400).send("All fields are required.")
-    }
+    const { email, password } = bodySchema.parse(request.body);
 
     try {
-        const user = await knex('users').select().where('email', email).first()
+        const user = await knex('users').select().where('email', email).first();
 
-        const passwordValidate = await bcrypt.compare(password, user.password);
-
-        if (!user || !passwordValidate) {
+        if (!user || await bcrypt.compare(password, user.password)) {
             return reply.status(400).send("Email or password is not valid.")
         }
 
@@ -76,6 +72,6 @@ export const userSignin = async (request: FastifyRequest, reply: FastifyReply) =
         reply.status(201).send({ accessToken: accessToken });
 
     } catch (error) {
-        reply.status(500).send();
+        reply.status(500).send(error);
     }
 }
