@@ -30,14 +30,14 @@ export const userSignup = async (request: FastifyRequest, reply: FastifyReply) =
             name: name,
             email: email,
             password: hashedPassword
-        }).returning('*').first();
+        }).returning('*');
 
         const accessToken = jwt.sign({
             user: {
-                name: user.name,
-                email: user.email,
-                id: user.id,
-                created_at: user.created_at
+                name: user[0].name,
+                email: user[0].email,
+                id: user[0].id,
+                created_at: user[0].created_at
             },
         },
             env.ACCESS_TOKEN_SECRET,
@@ -47,7 +47,7 @@ export const userSignup = async (request: FastifyRequest, reply: FastifyReply) =
         reply.status(201).send({ accessToken: accessToken });
 
     } catch (error) {
-        reply.status(500).send();
+        reply.status(500).send(error);
     }
 }
 
