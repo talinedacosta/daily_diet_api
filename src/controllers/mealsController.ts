@@ -23,8 +23,8 @@ export const createMeal = async (request: FastifyRequest, reply: FastifyReply) =
             title,
             description,
             isDiet,
-            eaten_at: new Date(eaten_at).toString(),
-            updated_at: new Date().toString(),
+            eaten_at: new Date(eaten_at).toUTCString(),
+            updated_at: knex.fn.now(),
             user_id: user_id
         })
 
@@ -102,7 +102,7 @@ export const updateMeal = async (request: FastifyRequest, reply: FastifyReply) =
                     title,
                     description,
                     isDiet,
-                    updated_at: new Date().toString()
+                    updated_at: knex.fn.now()
                 })
 
             return reply.status(201).send();
