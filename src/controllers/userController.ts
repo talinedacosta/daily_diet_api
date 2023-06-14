@@ -25,15 +25,20 @@ export const userSignup = async (request: FastifyRequest, reply: FastifyReply) =
             return reply.status(400).send("Email already used.")
         }
 
-        const response = await knex('users').insert({
+        const user = await knex('users').insert({
             id: randomUUID(),
             name: name,
             email: email,
             password: hashedPassword
-        }).returning('*')
+        }).returning('*').first();
 
         const accessToken = jwt.sign({
-            user: response,
+            user: {
+                name: user.name,
+                email: user.email,
+                id: user.id,
+                created_at: user.created_at
+            },
         },
             env.ACCESS_TOKEN_SECRET,
             { expiresIn: "1h" }
@@ -58,12 +63,17 @@ export const userSignin = async (request: FastifyRequest, reply: FastifyReply) =
     try {
         const user = await knex('users').select().where('email', email).first();
 
-        if (!user || await bcrypt.compare(password, user.password)) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return reply.status(400).send("Email or password is not valid.")
         }
 
         const accessToken = jwt.sign({
-            user: user,
+            user: {
+                name: user.name,
+                email: user.email,
+                id: user.id,
+                created_at: user.created_at
+            },
         },
             env.ACCESS_TOKEN_SECRET,
             { expiresIn: "1h" }

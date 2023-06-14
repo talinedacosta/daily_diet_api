@@ -15,6 +15,8 @@ export const createMeal = async (request: FastifyRequest, reply: FastifyReply) =
 
     const { title, description, eaten_at, isDiet } = bodySchema.parse(request.body);
 
+    const user_id = request.token;
+
     try {
         await knex('meals').insert({
             id: randomUUID(),
@@ -23,7 +25,7 @@ export const createMeal = async (request: FastifyRequest, reply: FastifyReply) =
             isDiet,
             eaten_at: new Date(eaten_at).toString(),
             updated_at: new Date().toString(),
-            user_id: "6564654654684"
+            user_id: user_id
         })
 
         return reply.status(201).send();
@@ -34,13 +36,15 @@ export const createMeal = async (request: FastifyRequest, reply: FastifyReply) =
 }
 
 export const getMeals = async (request: FastifyRequest, reply: FastifyReply) => {
+    const user_id = request.token;
+
     try {
-        const meals = await knex('meals').select();
+        const meals = await knex('meals').select().where('user_id', user_id);
 
         return reply.status(200).send(meals);
 
     } catch (error) {
-        return reply.status(500).send();
+        return reply.status(500).send(error);
     }
 }
 
@@ -52,8 +56,10 @@ export const getMeal = async (request: FastifyRequest, reply: FastifyReply) => {
 
     const { id } = paramSchema.parse(request.params);
 
+    const user_id = request.token;
+
     try {
-        const meal = await knex('meals').select().where({ id: id }).first();
+        const meal = await knex('meals').select().where({ id: id, user_id: user_id }).first();
 
         if (meal) {
             return reply.status(200).send(meal);
@@ -80,6 +86,8 @@ export const updateMeal = async (request: FastifyRequest, reply: FastifyReply) =
 
     const { id } = paramsSchema.parse(request.params);
 
+    const user_id = request.token;
+
     const { title, description, isDiet } = bodySchema.parse(request.body);
 
     try {
@@ -89,12 +97,12 @@ export const updateMeal = async (request: FastifyRequest, reply: FastifyReply) =
 
         if (currentMeal) {
             await knex('meals')
-                .where({ id: id })
+                .where({ id: id, user_id: user_id })
                 .update({
                     title,
                     description,
                     isDiet,
-                    updated_at: new Date()
+                    updated_at: new Date().toString()
                 })
 
             return reply.status(201).send();
@@ -115,10 +123,12 @@ export const deleteMeal = async (request: FastifyRequest, reply: FastifyReply) =
 
     const { id } = paramsSchema.parse(request.params);
 
+    const user_id = request.token;
+
     try {
         const currentMeal = await knex('meals')
             .select()
-            .where({ id: id }).first();
+            .where({ id: id, user_id: user_id }).first();
 
         if (currentMeal) {
             await knex('meals')
@@ -138,17 +148,21 @@ export const deleteMeal = async (request: FastifyRequest, reply: FastifyReply) =
 export const summaryMeal = async (request: FastifyRequest, reply: FastifyReply) => {
 
     try {
+
+        const user_id = request.token;
+
         const AllMeals = await knex('meals')
-            .select();
+            .select()
+            .where({ user_id: user_id });
 
         const mealsOnDiet = await knex('meals')
             .select()
-            .where({ isDiet: 'true' })
+            .where({ isDiet: 'true', user_id: user_id })
             .orderBy('created_at', 'desc');
 
         const mealsNotOnDiet = await knex('meals')
             .select()
-            .where({ isDiet: 'false' })
+            .where({ isDiet: 'false', user_id: user_id })
             .orderBy('created_at', 'desc');
 
         const mealsBestSequence = bestSequenceOfOnDiet(AllMeals);
